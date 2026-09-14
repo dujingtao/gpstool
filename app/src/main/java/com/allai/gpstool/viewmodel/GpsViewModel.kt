@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.viewmodel
+package com.allai.gpstool.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

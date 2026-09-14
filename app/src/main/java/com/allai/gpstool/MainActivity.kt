@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool
+package com.allai.gpstool
 
 import android.Manifest
 import android.content.pm.PackageManager

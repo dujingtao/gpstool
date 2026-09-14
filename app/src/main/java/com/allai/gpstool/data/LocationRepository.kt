@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.data
+package com.allai.gpstool.data
 
 import android.annotation.SuppressLint
 import android.content.Context

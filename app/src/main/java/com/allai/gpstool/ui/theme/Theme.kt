@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.ui.theme
+package com.allai.gpstool.ui.theme
 
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme

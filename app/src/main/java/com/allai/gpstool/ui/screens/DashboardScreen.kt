@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.ui.screens
+package com.allai.gpstool.ui.screens
 
 import android.content.ClipData
 import android.content.ClipboardManager

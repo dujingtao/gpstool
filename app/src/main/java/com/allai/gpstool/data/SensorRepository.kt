@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.data
+package com.allai.gpstool.data
 
 import android.content.Context
 import android.hardware.Sensor

@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.ui.components
+package com.allai.gpstool.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.aspectRatio

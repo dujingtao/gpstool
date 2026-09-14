@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.ui.screens
+package com.allai.gpstool.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*

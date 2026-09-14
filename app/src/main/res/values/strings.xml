@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="app_name">GPSTool</string>
     <string name="nav_skyview">雷达 / 卫星</string>
     <string name="nav_dashboard">仪表盘</string>

@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.model
+package com.allai.gpstool.model
 
 data class LocationData(
     val latitude: Double = 0.0,

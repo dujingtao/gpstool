@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.model
+package com.allai.gpstool.model
 
 import android.location.GnssStatus
 

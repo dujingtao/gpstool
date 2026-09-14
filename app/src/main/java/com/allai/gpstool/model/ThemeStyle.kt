@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.model
+package com.allai.gpstool.model
 
 enum class ThemeStyle(val title: String, val description: String) {
     CYBERPUNK("暗黑极客科技 (Cyber HUD)", "纯黑底色结合霓虹青蓝，OLED省电，适合夜间与车载"),
