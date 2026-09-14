@@ -1,5 +1,8 @@
 package com.allai.gpstool.ui.screens
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -9,9 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -70,9 +71,11 @@ fun CompassScreen(viewModel: GpsViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 旋转式指南针刻度盘
+        // 旋转式指南针刻度盘 (带平滑阻尼动画)
         CompassDial(
             azimuthDegrees = sensorData.azimuthDegrees,
+            modifier = Modifier.size(240.dp)
+        )
             modifier = Modifier.size(240.dp)
         )
 
@@ -132,12 +135,32 @@ fun CompassDial(
     val colors = LocalCustomColors.current
     val textMeasurer = rememberTextMeasurer()
 
+    // 连续角度跟踪，避免从 359° 跨到 1° 时发生大范围反向回旋
+    var targetContinuousAngle by remember { mutableFloatStateOf(-azimuthDegrees) }
+    LaunchedEffect(azimuthDegrees) {
+        val target = -azimuthDegrees
+        var diff = target - targetContinuousAngle
+        while (diff < -180f) diff += 360f
+        while (diff > 180f) diff -= 360f
+        targetContinuousAngle += diff
+    }
+
+    // 柔和阻尼弹簧动画，模拟航空油压机械罗盘的稳重平顺
+    val animatedAngle by animateFloatAsState(
+        targetValue = targetContinuousAngle,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "compassRotation"
+    )
+
     Canvas(modifier = modifier) {
         val center = Offset(size.width / 2f, size.height / 2f)
         val radius = size.width / 2f * 0.9f
 
         // 随着手机旋转反向转动表盘，使得正北始终指向上方
-        rotate(-azimuthDegrees, pivot = center) {
+        rotate(animatedAngle, pivot = center) {
             drawCircle(
                 color = colors.surface,
                 radius = radius,
@@ -206,6 +229,8 @@ fun BubbleLevelView(
     modifier: Modifier = Modifier
 ) {
     val colors = LocalCustomColors.current
+    val animatedPitch by animateFloatAsState(targetValue = pitch, animationSpec = spring(stiffness = Spring.StiffnessMediumLow), label = "pitch")
+    val animatedRoll by animateFloatAsState(targetValue = roll, animationSpec = spring(stiffness = Spring.StiffnessMediumLow), label = "roll")
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = colors.surface),
@@ -250,12 +275,12 @@ fun BubbleLevelView(
                 drawLine(colors.gridColor, Offset(center.x, 0f), Offset(center.x, size.height), strokeWidth = 1f)
                 drawLine(colors.gridColor, Offset(0f, center.y), Offset(size.width, center.y), strokeWidth = 1f)
 
-                // 计算气泡偏移
+                // 计算气泡偏移 (使用平滑动画值)
                 val maxOffset = maxRadius - 16.dp.toPx()
-                val bubbleX = (center.x + (roll / 45f).coerceIn(-1f, 1f) * maxOffset)
-                val bubbleY = (center.y + (pitch / 45f).coerceIn(-1f, 1f) * maxOffset)
+                val bubbleX = (center.x + (animatedRoll / 45f).coerceIn(-1f, 1f) * maxOffset)
+                val bubbleY = (center.y + (animatedPitch / 45f).coerceIn(-1f, 1f) * maxOffset)
 
-                val isLevel = kotlin.math.abs(pitch) < 1.0f && kotlin.math.abs(roll) < 1.0f
+                val isLevel = kotlin.math.abs(animatedPitch) < 1.0f && kotlin.math.abs(animatedRoll) < 1.0f
                 val bubbleColor = if (isLevel) colors.secondary else colors.primary
 
                 // 绘制气泡

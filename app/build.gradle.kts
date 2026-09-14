@@ -7,6 +7,7 @@ plugins {
 android {
     namespace = "com.allai.gpstool"
     compileSdk = 35
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.allai.gpstool"
