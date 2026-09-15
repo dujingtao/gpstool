@@ -292,103 +292,85 @@ fun CompassDial(
                     )
                 }
             }
-
+            // 星芒内部复古同心圆
             drawCircle(
                 color = colors.primary.copy(alpha = 0.20f),
                 radius = roseRadius * 0.42f,
                 center = center,
                 style = Stroke(width = 1.dp.toPx())
             )
-
-            // 古典双菱形镂空长指针 (Classic Pierced Diamond Needle)
-            val needleLength = outerRadius * 0.78f
-            val needleHalfWidth = 14.dp.toPx()
-            val pierceRadius = 5.5.dp.toPx()
-            val waistY = needleLength * 0.38f
-
-            // 北向红针 (指向盘面的 N)
-            val northLeft = Path().apply {
-                moveTo(center.x, center.y - needleLength)
-                lineTo(center.x - needleHalfWidth, center.y - waistY)
-                lineTo(center.x, center.y)
-                close()
-            }
-            drawPath(path = northLeft, color = Color(0xFFFF2233))
-
-            val northRight = Path().apply {
-                moveTo(center.x, center.y - needleLength)
-                lineTo(center.x + needleHalfWidth, center.y - waistY)
-                lineTo(center.x, center.y)
-                close()
-            }
-            drawPath(path = northRight, color = Color(0xFF990011))
-
-            // 南向银黑针 (指向盘面的 S)
-            val southLength = needleLength * 0.82f
-            val southWaistY = southLength * 0.38f
-            val southLeft = Path().apply {
-                moveTo(center.x, center.y + southLength)
-                lineTo(center.x - needleHalfWidth * 0.85f, center.y + southWaistY)
-                lineTo(center.x, center.y)
-                close()
-            }
-            drawPath(path = southLeft, color = Color(0xFFDDDDDD))
-
-            val southRight = Path().apply {
-                moveTo(center.x, center.y + southLength)
-                lineTo(center.x + needleHalfWidth * 0.85f, center.y + southWaistY)
-                lineTo(center.x, center.y)
-                close()
-            }
-            drawPath(path = southRight, color = Color(0xFF555555))
-
-            // 指针镂空透雕孔
-            drawCircle(
-                color = colors.surface,
-                radius = pierceRadius,
-                center = Offset(center.x, center.y - waistY)
-            )
-            drawCircle(
-                color = Color(0xFFFF2233),
-                radius = pierceRadius,
-                center = Offset(center.x, center.y - waistY),
-                style = Stroke(width = 1.5.dp.toPx())
-            )
-            drawCircle(
-                color = colors.surface,
-                radius = pierceRadius * 0.85f,
-                center = Offset(center.x, center.y + southWaistY)
-            )
-            drawCircle(
-                color = Color(0xFF888888),
-                radius = pierceRadius * 0.85f,
-                center = Offset(center.x, center.y + southWaistY),
-                style = Stroke(width = 1.5.dp.toPx())
-            )
-
-            // 古典黄铜宝石中心枢轴
-            drawCircle(color = Color(0xFFD4AF37), radius = 11.dp.toPx(), center = center)
-            drawCircle(color = Color(0xFF8B0000), radius = 7.dp.toPx(), center = center)
-            drawCircle(color = Color.White, radius = 2.dp.toPx(), center = Offset(center.x - 2f, center.y - 2f))
         }
 
-        // ===== 2. 固定正上方航向基准游标 (Fixed Heading Lubber Line at 12 o'clock) =====
-        // 倒三角游标 (指向盘面正上方，代表手机正前方的真实航向)
-        val lubberSize = 12.dp.toPx()
-        val lubberTopY = center.y - outerRadius - 4.dp.toPx()
-        val lubberPath = Path().apply {
-            moveTo(center.x, lubberTopY + lubberSize) // 尖端向下指着表盘当前刻度
-            lineTo(center.x - lubberSize * 0.7f, lubberTopY)
-            lineTo(center.x + lubberSize * 0.7f, lubberTopY)
+        // ===== 2. 中间古典指针保持不动 (固定垂直指向上方12点钟，作为航向指针) =====
+        val needleLength = outerRadius * 0.78f
+        val needleHalfWidth = 14.dp.toPx()
+        val pierceRadius = 5.5.dp.toPx()
+        val waistY = needleLength * 0.38f
+
+        // --- 北向红针 (笔直指向上方12点钟正前航向) ---
+        val northLeft = Path().apply {
+            moveTo(center.x, center.y - needleLength)
+            lineTo(center.x - needleHalfWidth, center.y - waistY)
+            lineTo(center.x, center.y)
             close()
         }
-        // 游标外发光光晕
-        drawPath(path = lubberPath, color = Color(0xFFFF3344))
+        drawPath(path = northLeft, color = Color(0xFFFF2233))
+
+        val northRight = Path().apply {
+            moveTo(center.x, center.y - needleLength)
+            lineTo(center.x + needleHalfWidth, center.y - waistY)
+            lineTo(center.x, center.y)
+            close()
+        }
+        drawPath(path = northRight, color = Color(0xFF990011))
+
+        // --- 南向银黑针 (笔直指向下方6点钟后方) ---
+        val southLength = needleLength * 0.82f
+        val southWaistY = southLength * 0.38f
+        val southLeft = Path().apply {
+            moveTo(center.x, center.y + southLength)
+            lineTo(center.x - needleHalfWidth * 0.85f, center.y + southWaistY)
+            lineTo(center.x, center.y)
+            close()
+        }
+        drawPath(path = southLeft, color = Color(0xFFDDDDDD))
+
+        val southRight = Path().apply {
+            moveTo(center.x, center.y + southLength)
+            lineTo(center.x + needleHalfWidth * 0.85f, center.y + southWaistY)
+            lineTo(center.x, center.y)
+            close()
+        }
+        drawPath(path = southRight, color = Color(0xFF555555))
+
+        // 指针镂空透雕孔
         drawCircle(
-            color = Color(0xFFFF3344).copy(alpha = 0.35f),
-            radius = 16.dp.toPx(),
-            center = Offset(center.x, lubberTopY + lubberSize * 0.5f)
+            color = colors.surface,
+            radius = pierceRadius,
+            center = Offset(center.x, center.y - waistY)
         )
+        drawCircle(
+            color = Color(0xFFFF2233),
+            radius = pierceRadius,
+            center = Offset(center.x, center.y - waistY),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+        drawCircle(
+            color = colors.surface,
+            radius = pierceRadius * 0.85f,
+            center = Offset(center.x, center.y + southWaistY)
+        )
+        drawCircle(
+            color = Color(0xFF888888),
+            radius = pierceRadius * 0.85f,
+            center = Offset(center.x, center.y + southWaistY),
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+
+        // 古典黄铜宝石中心枢轴
+        drawCircle(color = Color(0xFFD4AF37), radius = 11.dp.toPx(), center = center)
+        drawCircle(color = Color(0xFF8B0000), radius = 7.dp.toPx(), center = center)
+        drawCircle(color = Color.White, radius = 2.dp.toPx(), center = Offset(center.x - 2f, center.y - 2f))
     }
 }
 
