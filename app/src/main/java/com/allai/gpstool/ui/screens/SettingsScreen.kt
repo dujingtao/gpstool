@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.allai.gpstool.BuildConfig
 import com.allai.gpstool.model.CoordinateFormat
 import com.allai.gpstool.model.SpeedUnit
 import com.allai.gpstool.model.ThemeStyle
@@ -157,7 +158,7 @@ fun SettingsScreen(themeViewModel: ThemeViewModel) {
             shape = RoundedCornerShape(12.dp)
         ) {
             Column(modifier = Modifier.padding(14.dp)) {
-                Text(text = "GPSTool v1.0.0", color = colors.primary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(text = "GPSTool v${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE})", color = colors.primary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(text = "开发者: all.ai (Google Play 专享版)", color = colors.textSecondary, fontSize = 11.sp)
                 Text(text = "支持系统: GPS, 北斗, GLONASS, Galileo, QZSS", color = colors.textSecondary, fontSize = 11.sp)
