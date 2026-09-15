@@ -21,29 +21,47 @@ class GpsViewModel(application: Application) : AndroidViewModel(application) {
     private val gnssRepo = GnssRepository(application)
     private val locationRepo = LocationRepository(application)
     private val sensorRepo = SensorRepository(application)
+    private val nmeaRepo = NmeaRepository(application)
 
     val satellites: StateFlow<List<SatelliteInfo>> = gnssRepo.satellites
     val locationData: StateFlow<LocationData> = locationRepo.locationData
     val sensorData = sensorRepo.sensorData
+    val nmeaRecords = nmeaRepo.nmeaRecords
+    val dopData = nmeaRepo.dopData
+    val messagesPerSec = nmeaRepo.messagesPerSec
+    val ttffMillis = gnssRepo.ttffMillis
 
-    // 统计数据 (可见卫星数, 锁定解算卫星数, 平均 C/N0)
+    // 统计数据 (可见卫星数, 锁定解算卫星数, 平均 C/N0, 双频卫星数)
+    data class SatStats(
+        val inView: Int = 0,
+        val inFix: Int = 0,
+        val avgCn0: Float = 0f,
+        val dualBandCount: Int = 0
+    )
+
     val satelliteStats = combine(satellites, locationData) { sats, loc ->
         val inView = sats.size
         val inFix = sats.count { it.usedInFix }
         val avgCn0 = if (sats.isNotEmpty()) sats.map { it.cn0DbHz }.average().toFloat() else 0f
-        Triple(inView, inFix, avgCn0)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), Triple(0, 0, 0f))
+        val dualBand = sats.count { it.isDualBand }
+        SatStats(inView, inFix, avgCn0, dualBand)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SatStats())
+
+    fun setNmeaPaused(paused: Boolean) = nmeaRepo.setPaused(paused)
+    fun clearNmea() = nmeaRepo.clear()
 
     fun startListening() {
         gnssRepo.startListening()
         locationRepo.startListening()
         sensorRepo.startListening()
+        nmeaRepo.startListening()
     }
 
     fun stopListening() {
         gnssRepo.stopListening()
         locationRepo.stopListening()
         sensorRepo.stopListening()
+        nmeaRepo.stopListening()
     }
 
     override fun onCleared() {

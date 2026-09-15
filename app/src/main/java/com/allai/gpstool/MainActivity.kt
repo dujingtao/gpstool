@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Radar
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Terminal
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ enum class NavigationItem(val title: String, val icon: ImageVector) {
     SKY_VIEW("雷达卫星", Icons.Default.Radar),
     DASHBOARD("仪表盘", Icons.Default.Dashboard),
     COMPASS("罗盘水平", Icons.Default.Explore),
+    NMEA("NMEA对话", Icons.Default.Terminal),
     SETTINGS("风格定制", Icons.Default.Settings)
 }
 
@@ -88,6 +90,7 @@ class MainActivity : ComponentActivity() {
                             NavigationItem.SKY_VIEW -> SkyViewScreen(gpsViewModel)
                             NavigationItem.DASHBOARD -> DashboardScreen(gpsViewModel, themeViewModel)
                             NavigationItem.COMPASS -> CompassScreen(gpsViewModel)
+                            NavigationItem.NMEA -> NmeaScreen(gpsViewModel)
                             NavigationItem.SETTINGS -> SettingsScreen(themeViewModel)
                         }
                     }

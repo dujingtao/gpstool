@@ -71,7 +71,7 @@ fun SignalBarChart(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(130.dp)
+                    .height(146.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(colors.surface)
                     .horizontalScroll(rememberScrollState())
@@ -121,6 +121,15 @@ fun SignalBarChart(
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Medium
                         )
+                        // 双频/载波频段微型徽章 (如 L1, L5, B2a)
+                        if (sat.frequencyBand.isNotEmpty()) {
+                            Text(
+                                text = sat.frequencyBand,
+                                color = if (sat.isDualBand) Color(0xFFFFD700) else colors.textSecondary, // 双频高亮金黄
+                                fontSize = 7.5.sp,
+                                fontWeight = if (sat.isDualBand) FontWeight.Bold else FontWeight.Normal
+                            )
+                        }
                     }
                 }
             }

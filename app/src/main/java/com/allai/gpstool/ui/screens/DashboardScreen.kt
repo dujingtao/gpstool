@@ -162,7 +162,76 @@ fun DashboardScreen(
             )
         }
 
-        // 时间戳卡片
+        // DOP 精度稀释因子 (卫星几何构型质量) 卡片
+        val dopData by gpsViewModel.dopData.collectAsState()
+        val ttffMillis by gpsViewModel.ttffMillis.collectAsState()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = colors.surface),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Column(modifier = Modifier.padding(14.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "DOP 精度几何因子 (NMEA 测绘级)", color = colors.textSecondary, fontSize = 12.sp)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color(dopData.rating.colorHex).copy(alpha = 0.2f))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = dopData.rating.title,
+                            color = Color(dopData.rating.colorHex),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "PDOP (空间)", color = colors.textSecondary, fontSize = 11.sp)
+                        Text(
+                            text = if (dopData.pdop > 0) String.format(Locale.US, "%.2f", dopData.pdop) else "--",
+                            color = colors.primary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "HDOP (水平)", color = colors.textSecondary, fontSize = 11.sp)
+                        Text(
+                            text = if (dopData.hdop > 0) String.format(Locale.US, "%.2f", dopData.hdop) else "--",
+                            color = colors.secondary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "VDOP (垂直)", color = colors.textSecondary, fontSize = 11.sp)
+                        Text(
+                            text = if (dopData.vdop > 0) String.format(Locale.US, "%.2f", dopData.vdop) else "--",
+                            color = colors.textPrimary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
+            }
+        }
+
+        // 时间戳与 TTFF 首次锁星卡片
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = colors.surface),
@@ -172,10 +241,25 @@ fun DashboardScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(14.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = "定位时间", color = colors.textSecondary, fontSize = 13.sp)
-                Text(text = timeStr, color = colors.textPrimary, fontSize = 13.sp, fontFamily = FontFamily.Monospace)
+                Column {
+                    Text(text = "定位时间", color = colors.textSecondary, fontSize = 11.sp)
+                    Text(text = timeStr, color = colors.textPrimary, fontSize = 12.sp, fontFamily = FontFamily.Monospace)
+                }
+                if (ttffMillis > 0) {
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(text = "首次锁星 (TTFF)", color = colors.textSecondary, fontSize = 11.sp)
+                        Text(
+                            text = String.format(Locale.US, "%.2f 秒", ttffMillis / 1000f),
+                            color = colors.secondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
+                }
             }
         }
     }

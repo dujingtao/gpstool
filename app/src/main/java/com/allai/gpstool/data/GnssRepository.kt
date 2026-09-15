@@ -22,6 +22,9 @@ class GnssRepository(private val context: Context) {
     private val _gnssStarted = MutableStateFlow(false)
     val gnssStarted: StateFlow<Boolean> = _gnssStarted.asStateFlow()
 
+    private val _ttffMillis = MutableStateFlow(0)
+    val ttffMillis: StateFlow<Int> = _ttffMillis.asStateFlow()
+
     private val gnssStatusCallback = object : GnssStatus.Callback() {
         override fun onStarted() {
             _gnssStarted.value = true
@@ -32,8 +35,9 @@ class GnssRepository(private val context: Context) {
             _satellites.value = emptyList()
         }
 
-        override fun onFirstFix(ttffMillis: Int) {
+        override fun onFirstFix(ttff: Int) {
             _gnssStarted.value = true
+            _ttffMillis.value = ttff
         }
 
         override fun onSatelliteStatusChanged(status: GnssStatus) {

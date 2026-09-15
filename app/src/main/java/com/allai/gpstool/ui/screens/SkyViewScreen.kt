@@ -29,8 +29,6 @@ fun SkyViewScreen(viewModel: GpsViewModel) {
     val stats by viewModel.satelliteStats.collectAsState()
     val sensorData by viewModel.sensorData.collectAsState()
 
-    val (inView, inFix, avgCn0) = stats
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -38,7 +36,7 @@ fun SkyViewScreen(viewModel: GpsViewModel) {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 72.dp)
     ) {
-        // 顶部统计栏卡片
+        // 顶部统计栏卡片 (4 列布局)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,9 +50,10 @@ fun SkyViewScreen(viewModel: GpsViewModel) {
                     .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                StatColumn(label = "可见卫星", value = "$inView 颗", color = colors.primary)
-                StatColumn(label = "定位解算", value = "$inFix 颗", color = colors.secondary)
-                StatColumn(label = "平均信号", value = String.format("%.1f dB", avgCn0), color = colors.textPrimary)
+                StatColumn(label = "可见卫星", value = "${stats.inView}", color = colors.primary)
+                StatColumn(label = "解算定位", value = "${stats.inFix}", color = colors.secondary)
+                StatColumn(label = "双频(L5/B2)", value = "${stats.dualBandCount}", color = Color(0xFFFFD700))
+                StatColumn(label = "平均信号", value = String.format("%.1f dB", stats.avgCn0), color = colors.textPrimary)
             }
         }
 
