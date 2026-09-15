@@ -93,7 +93,7 @@ fun SettingsScreen(themeViewModel: ThemeViewModel) {
             }
         }
 
-        Divider(color = colors.gridColor)
+        HorizontalDivider(color = colors.gridColor)
 
         // 速度单位设置
         Text(

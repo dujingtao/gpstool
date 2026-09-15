@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -82,7 +83,7 @@ fun SkyViewScreen(viewModel: GpsViewModel) {
 }
 
 @Composable
-private fun StatColumn(label: String, value: String, color: androidx.compose.ui.graphics.Color) {
+private fun StatColumn(label: String, value: String, color: Color) {
     val colors = LocalCustomColors.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = label, color = colors.textSecondary, fontSize = 12.sp)
@@ -92,7 +93,7 @@ private fun StatColumn(label: String, value: String, color: androidx.compose.ui.
 }
 
 @Composable
-private fun ConstellationBadge(name: String, color: androidx.compose.ui.graphics.Color, count: Int) {
+private fun ConstellationBadge(name: String, color: Color, count: Int) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Box(
             modifier = Modifier

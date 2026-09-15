@@ -5,9 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.allai.gpstool.data.GnssRepository
 import com.allai.gpstool.data.LocationRepository
+import com.allai.gpstool.data.NmeaRepository
+import com.allai.gpstool.data.SensorOrientationData
 import com.allai.gpstool.data.SensorRepository
 import com.allai.gpstool.model.CoordinateFormat
+import com.allai.gpstool.model.DopData
 import com.allai.gpstool.model.LocationData
+import com.allai.gpstool.model.NmeaRecord
 import com.allai.gpstool.model.SatelliteInfo
 import com.allai.gpstool.model.SpeedUnit
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,11 +29,11 @@ class GpsViewModel(application: Application) : AndroidViewModel(application) {
 
     val satellites: StateFlow<List<SatelliteInfo>> = gnssRepo.satellites
     val locationData: StateFlow<LocationData> = locationRepo.locationData
-    val sensorData = sensorRepo.sensorData
-    val nmeaRecords = nmeaRepo.nmeaRecords
-    val dopData = nmeaRepo.dopData
-    val messagesPerSec = nmeaRepo.messagesPerSec
-    val ttffMillis = gnssRepo.ttffMillis
+    val sensorData: StateFlow<SensorOrientationData> = sensorRepo.sensorData
+    val nmeaRecords: StateFlow<List<NmeaRecord>> = nmeaRepo.nmeaRecords
+    val dopData: StateFlow<DopData> = nmeaRepo.dopData
+    val messagesPerSec: StateFlow<Int> = nmeaRepo.messagesPerSec
+    val ttffMillis: StateFlow<Int> = gnssRepo.ttffMillis
 
     // 统计数据 (可见卫星数, 锁定解算卫星数, 平均 C/N0, 双频卫星数)
     data class SatStats(

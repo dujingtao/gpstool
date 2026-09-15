@@ -19,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -181,12 +182,12 @@ fun DashboardScreen(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color(dopData.rating.colorHex).copy(alpha = 0.2f))
+                            .background(Color(dopData.rating.colorLong).copy(alpha = 0.2f))
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
                             text = dopData.rating.title,
-                            color = Color(dopData.rating.colorHex),
+                            color = Color(dopData.rating.colorLong),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )

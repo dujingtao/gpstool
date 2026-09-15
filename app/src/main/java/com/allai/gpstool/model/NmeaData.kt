@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.model
+package com.allai.gpstool.model
 
 data class NmeaRecord(
     val timestamp: Long,
@@ -22,10 +22,10 @@ data class DopData(
         }
 }
 
-enum class DopRating(val title: String, val colorHex: Long) {
-    EXCELLENT("极佳 (测绘级)", 0xFF00FF7F),
-    GOOD("良好 (导航级)", 0xFF00F0FF),
-    MODERATE("一般 (有遮挡)", 0xFFFFB300),
-    POOR("较差 (几何发散)", 0xFFFF3344),
-    UNKNOWN("等待解算", 0xFF888888)
+enum class DopRating(val title: String, val colorLong: Long) {
+    EXCELLENT("极佳 (测绘级)", 0xFF00FF7FL),
+    GOOD("良好 (导航级)", 0xFF00F0FFL),
+    MODERATE("一般 (有遮挡)", 0xFFFFB300L),
+    POOR("较差 (几何发散)", 0xFFFF3344L),
+    UNKNOWN("等待解算", 0xFF888888L)
 }
