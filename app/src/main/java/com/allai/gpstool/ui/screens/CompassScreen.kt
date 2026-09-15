@@ -71,12 +71,10 @@ fun CompassScreen(viewModel: GpsViewModel) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 旋转式指南针刻度盘 (带平滑阻尼动画)
+        // 旋转式指南针刻度盘 (古典航海罗盘风格)
         CompassDial(
             azimuthDegrees = sensorData.azimuthDegrees,
-            modifier = Modifier.size(240.dp)
-        )
-            modifier = Modifier.size(240.dp)
+            modifier = Modifier.size(280.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -145,7 +143,7 @@ fun CompassDial(
         targetContinuousAngle += diff
     }
 
-    // 柔和阻尼弹簧动画，模拟航空油压机械罗盘的稳重平顺
+    // 柔和阻尼弹簧动画，模拟油压古典航海罗盘的稳重平顺
     val animatedAngle by animateFloatAsState(
         targetValue = targetContinuousAngle,
         animationSpec = spring(
@@ -157,68 +155,245 @@ fun CompassDial(
 
     Canvas(modifier = modifier) {
         val center = Offset(size.width / 2f, size.height / 2f)
-        val radius = size.width / 2f * 0.9f
+        val outerRadius = size.width / 2f * 0.94f
+        val innerRingRadius = outerRadius * 0.76f
 
-        // 随着手机旋转反向转动表盘，使得正北始终指向上方
+        // ===== 1. 绘制固定外圈古典双环与精密刻度盘 =====
+        drawCircle(
+            color = colors.surface,
+            radius = outerRadius,
+            center = center
+        )
+        // 外层主边框圆环
+        drawCircle(
+            color = colors.primary.copy(alpha = 0.75f),
+            radius = outerRadius,
+            center = center,
+            style = Stroke(width = 2.5.dp.toPx())
+        )
+        // 内层双轨圆环
+        drawCircle(
+            color = colors.primary.copy(alpha = 0.35f),
+            radius = innerRingRadius,
+            center = center,
+            style = Stroke(width = 1.5.dp.toPx())
+        )
+
+        // 360 度精密刻度 (每 5° 一小格，每 15° 一中格，每 30° 一大格)
+        for (angle in 0 until 360 step 5) {
+            val is30 = angle % 30 == 0
+            val is15 = angle % 15 == 0
+            val tickLength = when {
+                is30 -> 13.dp.toPx()
+                is15 -> 8.dp.toPx()
+                else -> 4.5.dp.toPx()
+            }
+            val rad = Math.toRadians((angle - 90.0)).toFloat()
+            val startX = center.x + outerRadius * kotlin.math.cos(rad)
+            val startY = center.y + outerRadius * kotlin.math.sin(rad)
+            val endX = center.x + (outerRadius - tickLength) * kotlin.math.cos(rad)
+            val endY = center.y + (outerRadius - tickLength) * kotlin.math.sin(rad)
+
+            drawLine(
+                color = if (is30) colors.primary else colors.primary.copy(alpha = 0.4f),
+                start = Offset(startX, startY),
+                end = Offset(endX, endY),
+                strokeWidth = if (is30) 2.dp.toPx() else 1.dp.toPx()
+            )
+        }
+
+        // ===== 2. 绘制端正的固定刻度文字 (通过极坐标居中计算，绝无歪斜) =====
+        // 刻度度数数字 (0°, 30°, 60° ... 330°)
+        val degreeRadius = outerRadius - 19.dp.toPx()
+        for (angle in 0 until 360 step 30) {
+            val rad = Math.toRadians((angle - 90.0)).toFloat()
+            val textLayout = textMeasurer.measure(
+                text = angle.toString(),
+                style = TextStyle(
+                    color = colors.textSecondary.copy(alpha = 0.8f),
+                    fontSize = 8.5.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            )
+            val x = center.x + degreeRadius * kotlin.math.cos(rad) - textLayout.size.width / 2f
+            val y = center.y + degreeRadius * kotlin.math.sin(rad) - textLayout.size.height / 2f
+            drawText(textLayout, topLeft = Offset(x, y))
+        }
+
+        // 四大主方位标字 (N, E, S, W) - 古典衬线大字，完全端正对齐
+        val cardinalRadius = innerRingRadius - 16.dp.toPx()
+        val cardinals = listOf(
+            Triple("N", 0, Color(0xFFFF3344)),   // 北：经典朱砂红
+            Triple("E", 90, colors.textPrimary),
+            Triple("S", 180, colors.textPrimary),
+            Triple("W", 270, colors.textPrimary)
+        )
+        cardinals.forEach { (label, deg, color) ->
+            val rad = Math.toRadians((deg - 90.0)).toFloat()
+            val layout = textMeasurer.measure(
+                text = label,
+                style = TextStyle(
+                    color = color,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Black
+                )
+            )
+            val x = center.x + cardinalRadius * kotlin.math.cos(rad) - layout.size.width / 2f
+            val y = center.y + cardinalRadius * kotlin.math.sin(rad) - layout.size.height / 2f
+            drawText(layout, topLeft = Offset(x, y))
+        }
+
+        // 四副方位标字 (NE, SE, SW, NW)
+        val subCardinals = listOf("NE" to 45, "SE" to 135, "SW" to 225, "NW" to 315)
+        subCardinals.forEach { (label, deg) ->
+            val rad = Math.toRadians((deg - 90.0)).toFloat()
+            val layout = textMeasurer.measure(
+                text = label,
+                style = TextStyle(
+                    color = colors.textSecondary.copy(alpha = 0.65f),
+                    fontSize = 9.5.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            val x = center.x + cardinalRadius * kotlin.math.cos(rad) - layout.size.width / 2f
+            val y = center.y + cardinalRadius * kotlin.math.sin(rad) - layout.size.height / 2f
+            drawText(layout, topLeft = Offset(x, y))
+        }
+
+        // ===== 3. 随真实方位旋转的【古典罗盘八芒星花盘 + 镂空立体双菱形指针】 =====
         rotate(animatedAngle, pivot = center) {
-            drawCircle(
-                color = colors.surface,
-                radius = radius,
-                center = center
-            )
-            drawCircle(
-                color = colors.primary.copy(alpha = 0.5f),
-                radius = radius,
-                center = center,
-                style = Stroke(width = 2.dp.toPx())
-            )
+            val roseRadius = innerRingRadius * 0.72f
+            val midRadius = roseRadius * 0.52f
 
-            // 绘制刻度
-            for (angle in 0 until 360 step 15) {
-                val isMajor = angle % 90 == 0
-                val isMedium = angle % 45 == 0
-                val tickLength = when {
-                    isMajor -> 18.dp.toPx()
-                    isMedium -> 12.dp.toPx()
-                    else -> 6.dp.toPx()
-                }
-                val strokeWidth = if (isMajor) 3f else 1.5f
+            // 古典八芒星花盘 (8-Point Vintage Compass Rose)
+            for (i in 0 until 8) {
+                val baseAngle = i * 45f
+                val isMajor = i % 2 == 0
+                val length = if (isMajor) roseRadius else midRadius
+                val width = if (isMajor) 14.dp.toPx() else 9.dp.toPx()
 
-                rotate(angle.toFloat(), pivot = center) {
-                    drawLine(
-                        color = if (angle == 0) Color.Red else colors.primary.copy(alpha = 0.8f),
-                        start = Offset(center.x, center.y - radius),
-                        end = Offset(center.x, center.y - radius + tickLength),
-                        strokeWidth = strokeWidth
+                rotate(baseAngle, pivot = center) {
+                    // 左侧明亮切面
+                    val leftFacet = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x - width * 0.5f, center.y)
+                        lineTo(center.x, center.y - length)
+                        close()
+                    }
+                    drawPath(
+                        path = leftFacet,
+                        color = if (i == 0) Color(0xFFFF4455) else colors.primary.copy(alpha = 0.50f)
+                    )
+
+                    // 右侧深暗阴影切面 (立体雕刻浮雕质感)
+                    val rightFacet = Path().apply {
+                        moveTo(center.x, center.y)
+                        lineTo(center.x + width * 0.5f, center.y)
+                        lineTo(center.x, center.y - length)
+                        close()
+                    }
+                    drawPath(
+                        path = rightFacet,
+                        color = if (i == 0) Color(0xFF880011) else colors.primary.copy(alpha = 0.20f)
                     )
                 }
             }
 
-            // 绘制标字 N/S/E/W
-            drawText(textMeasurer, "N", Offset(center.x - 7f, center.y - radius + 22f), style = TextStyle(color = Color.Red, fontSize = 16.sp, fontWeight = FontWeight.Bold))
-            drawText(textMeasurer, "S", Offset(center.x - 6f, center.y + radius - 45f), style = TextStyle(color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold))
-            drawText(textMeasurer, "E", Offset(center.x + radius - 40f, center.y - 12f), style = TextStyle(color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold))
-            drawText(textMeasurer, "W", Offset(center.x - radius + 22f, center.y - 12f), style = TextStyle(color = colors.textPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold))
+            // 星芒内部复古同心圆
+            drawCircle(
+                color = colors.primary.copy(alpha = 0.20f),
+                radius = roseRadius * 0.42f,
+                center = center,
+                style = Stroke(width = 1.dp.toPx())
+            )
+
+            // ===== 4. 古典双菱形镂空长指针 (Classic Pierced Diamond Needle) =====
+            val needleLength = outerRadius * 0.78f
+            val needleHalfWidth = 14.dp.toPx()
+            val pierceRadius = 5.5.dp.toPx()
+            val waistY = needleLength * 0.38f
+
+            // --- 北向指针 (经典立体朱红与深暗红双切面菱形) ---
+            val northLeft = Path().apply {
+                moveTo(center.x, center.y - needleLength)
+                lineTo(center.x - needleHalfWidth, center.y - waistY)
+                lineTo(center.x, center.y)
+                close()
+            }
+            drawPath(path = northLeft, color = Color(0xFFFF2233))
+
+            val northRight = Path().apply {
+                moveTo(center.x, center.y - needleLength)
+                lineTo(center.x + needleHalfWidth, center.y - waistY)
+                lineTo(center.x, center.y)
+                close()
+            }
+            drawPath(path = northRight, color = Color(0xFF990011))
+
+            // --- 南向指针 (立体白银与深炭黑双切面菱形) ---
+            val southLength = needleLength * 0.82f
+            val southWaistY = southLength * 0.38f
+            val southLeft = Path().apply {
+                moveTo(center.x, center.y + southLength)
+                lineTo(center.x - needleHalfWidth * 0.85f, center.y + southWaistY)
+                lineTo(center.x, center.y)
+                close()
+            }
+            drawPath(path = southLeft, color = Color(0xFFDDDDDD))
+
+            val southRight = Path().apply {
+                moveTo(center.x, center.y + southLength)
+                lineTo(center.x + needleHalfWidth * 0.85f, center.y + southWaistY)
+                lineTo(center.x, center.y)
+                close()
+            }
+            drawPath(path = southRight, color = Color(0xFF555555))
+
+            // 古典指针镂空透雕孔 (Pierced Center)
+            drawCircle(
+                color = colors.surface,
+                radius = pierceRadius,
+                center = Offset(center.x, center.y - waistY)
+            )
+            drawCircle(
+                color = Color(0xFFFF2233),
+                radius = pierceRadius,
+                center = Offset(center.x, center.y - waistY),
+                style = Stroke(width = 1.5.dp.toPx())
+            )
+
+            drawCircle(
+                color = colors.surface,
+                radius = pierceRadius * 0.85f,
+                center = Offset(center.x, center.y + southWaistY)
+            )
+            drawCircle(
+                color = Color(0xFF888888),
+                radius = pierceRadius * 0.85f,
+                center = Offset(center.x, center.y + southWaistY),
+                style = Stroke(width = 1.5.dp.toPx())
+            )
         }
 
-        // 中心指针（固定红色北向指针）
-        val needlePath = Path().apply {
-            moveTo(center.x, center.y - radius * 0.75f)
-            lineTo(center.x - 12f, center.y)
-            lineTo(center.x + 12f, center.y)
-            close()
-        }
-        drawPath(path = needlePath, color = Color.Red)
-
-        val southPath = Path().apply {
-            moveTo(center.x, center.y + radius * 0.75f)
-            lineTo(center.x - 12f, center.y)
-            lineTo(center.x + 12f, center.y)
-            close()
-        }
-        drawPath(path = southPath, color = colors.textSecondary.copy(alpha = 0.7f))
-
-        drawCircle(color = colors.textPrimary, radius = 6f, center = center)
+        // ===== 5. 古典黄铜宝石中心枢轴 (Antique Pivot & Brass Cap) =====
+        // 外层黄铜光圈
+        drawCircle(
+            color = Color(0xFFD4AF37),
+            radius = 11.dp.toPx(),
+            center = center
+        )
+        // 中层红宝石轴芯
+        drawCircle(
+            color = Color(0xFF8B0000),
+            radius = 7.dp.toPx(),
+            center = center
+        )
+        // 轴心高光反光点
+        drawCircle(
+            color = Color.White,
+            radius = 2.dp.toPx(),
+            center = Offset(center.x - 2f, center.y - 2f)
+        )
     }
 }
 
