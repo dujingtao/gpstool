@@ -1,4 +1,4 @@
-﻿package com.allai.gpstool.ui.screens
+package com.allai.gpstool.ui.screens
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -213,23 +213,28 @@ fun NmeaScreen(viewModel: GpsViewModel) {
                                     clipboard.setPrimaryClip(ClipData.newPlainText("NMEA Sentence", record.rawMessage))
                                     Toast.makeText(context, "已复制此语句", Toast.LENGTH_SHORT).show()
                                 }
-                                .padding(vertical = 2.dp)
+                                .padding(vertical = 2.dp),
+                            verticalAlignment = Alignment.Top
                         ) {
-                            // 时间戳
+                            // 时间戳 (固定单行，防止毫秒因宽度不足折行换行)
                             Text(
                                 text = timeFormat.format(Date(record.timestamp)),
-                                color = Color(0xFF556070),
+                                color = Color(0xFF6A778A),
                                 fontSize = 10.sp,
                                 fontFamily = FontFamily.Monospace,
-                                modifier = Modifier.width(78.dp)
+                                maxLines = 1,
+                                softWrap = false,
+                                modifier = Modifier.width(88.dp)
                             )
-                            // 报文内容
+                            Spacer(modifier = Modifier.width(6.dp))
+                            // 报文内容 (自适应剩余宽度)
                             Text(
                                 text = record.rawMessage,
                                 color = msgColor,
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
-                                lineHeight = 14.sp
+                                lineHeight = 15.sp,
+                                modifier = Modifier.weight(1f)
                             )
                         }
                     }
